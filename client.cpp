@@ -57,15 +57,11 @@ FlightData getDataAtIndex(const std::vector<FlightData> dataBuffer, int index){
 }
 
 // 客户端函数，连接到服务器并发送数据
-void client(const std::string& serverIp, const int& serverPort, int numSamples, int interval_ms){
+void startClient(const std::string& serverIp, const int& serverPort, int numSamples, int interval_ms){
     int sockfd;
     struct  sockaddr_in serverAddr;
     int retryCount = 0;
     bool isConnected = false;
-
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(serverPort);
-    serverAddr.sin_addr.s_addr = inet_addr(serverIp.c_str());
 
 // 尝试连接服务器，最多重试 5 次
 // 创建套接字
@@ -75,6 +71,10 @@ while(retryCount < 5 && !isConnected){
         std::cerr << "Error: Socket creation failed!" << std::endl;
         return;
     }
+
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(serverPort);
+    serverAddr.sin_addr.s_addr = inet_addr(serverIp.c_str());
 
     if(connect(sockfd, (struct sockaddr*) &serverAddr, sizeof(serverAddr) == 0)){
         std::cout << "Server connection succeed!" << std::endl;
@@ -95,7 +95,10 @@ if (!isConnected){
     return;
 }
 
+sleep(3);
+
 std::vector<FlightData> dataBuffer;
+
 while(true){
     // 采集数据
     collectData(dataBuffer, numSamples, interval_ms);
@@ -106,14 +109,15 @@ while(true){
         
         // 将数据发送到服务器
             for (const auto& data : dataToSend) {
+
                 std::string dataStr = std::to_string(data.pitch) + ","
                                     + std::to_string(data.roll) + ","
                                     + std::to_string(data.yaw) + ","
                                     + std::to_string(data.timestamp);
 
-                if (send(sockfd, dataStr.c_str(), dataStr.length(), 0) < 0) {
-                    std::cerr << "Error: Failed to send data. Reconnecting..." << std::endl;
-                    break;  // 跳出当前的发送数据循环，重新发送
+                if (send(sockfd, dataStr.c_str(), dataStr.length(), MSG_NOSIGNAL) < 0) {
+                    std::cerr << "Send failed with errno: " << errno << std::endl;
+                    break;  // 跳出当前的发送数据循环，重新获取数据发送
                 }
             }
         
@@ -145,7 +149,7 @@ int main() {
 
     // FlightData dataAtIndex = getDataAtIndex(flightDataBuffer, index);
 
-    client(serverIp, serverPort, numSamples, interval_ms);
+    startClient(serverIp, serverPort, numSamples, interval_ms);
 
     return 0;
 }
