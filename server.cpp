@@ -9,6 +9,8 @@
 #include <sstream>
 #include <limits>
 #include <fstream>
+#include <chrono>
+#include <iomanip>
 
 struct FlightData {
     float pitch;  // 俯仰角
@@ -19,8 +21,20 @@ struct FlightData {
 
 // 生成文件名
 std::string generateFileName(const unsigned long& timestamp) {
-    std::string strTimestamp = std::to_string(timestamp);
-    return "飞控数据_" + strTimestamp + ".txt";
+
+   unsigned long timestamp_s = timestamp / 1000;
+  
+     // 将时间戳转换为time_t，然后转换为tm结构
+    std::time_t time = static_cast<time_t>(timestamp_s);
+    std::tm *ptm = std::localtime(&time);
+
+     // 使用std::ostringstream与std::put_time来格式化日时间
+    std::ostringstream oss;
+    oss << std::put_time(ptm, "%Y%m%d%H%M%S");
+
+    // 从输出字符串流中获取格式化后的字符串,并输出文件名
+    std::string timeStr = oss.str();
+    return "飞控数据_" + timeStr + ".txt";
     }
 
 // 将字符串数据转换为FlightData数据
@@ -118,7 +132,7 @@ bool validateData(const std::vector<std::string>& dataStrings, int expectedDataC
         int count = 0;
         while (std::getline(ss, token, ',')) { // 分割接收到的原始数据字符串
             count++;
-            // 检查每个数据项是否符合预期格式：浮点数
+            // 检查每个数据项是否符合预期格式
             if (count == 1 || count == 2 || count == 3) {
                 try {
                     std::stof(token);  // 检查是否为浮点数
@@ -141,15 +155,15 @@ bool validateData(const std::vector<std::string>& dataStrings, int expectedDataC
 
 // 服务器函数：接收客户端发送的数据并校验
 void receiveDataFromClient(int newSock) {
-    std::vector<std::string> dataStrings;  // 用于存储接收到的原始数据字符串
-    char buffer[1024];  // 接收数据的缓冲区
+    std::vector<std::string> dataStrings;  // 用于存储接收到的单批数据
+    char buffer[1024];  // 接收单组数据的临时缓冲区
 
     int expectedDataCount = 10;  // 期望每次接收到的数据数量
 
     while (true) {
-        memset(buffer, 0, sizeof(buffer));// 缓冲区初始化为0
 
-        while(true){
+        while(dataStrings.size() < 10){
+        memset(buffer, 0, sizeof(buffer));// 每次接收前，临时缓冲区初始化为0
 
         // 接收数据
         int bytesReceived = recv(newSock, buffer, sizeof(buffer), 0);
@@ -160,6 +174,9 @@ void receiveDataFromClient(int newSock) {
 
         std::string data(buffer); 
         dataStrings.push_back(data);
+
+        std::cout << "yoho" << std::endl;
+
     }
 
         // 校验数据
@@ -172,6 +189,7 @@ void receiveDataFromClient(int newSock) {
             }
 
         // 数据处理
+        processData(dataStrings);
 
             // 清空数据字符串，准备接收下一批数据
             dataStrings.clear();
@@ -227,7 +245,7 @@ void startServer(const std::string& serverIp, const int& serverPort) {
 
         std::cout << "Client connected!" << std::endl;
         
-        // 处理客户端的数据接收
+        // 从客户端接收数据
         receiveDataFromClient(newSock);
     }
 

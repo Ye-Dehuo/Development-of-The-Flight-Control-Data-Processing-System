@@ -4,9 +4,12 @@
 #include <sstream>
 #include <string>
 #include <filesystem>
+#include <chrono>
+#include <iomanip>
 
-// 生成数据文件名为 "飞控数据_YYYYMMDDHHMMSS.txt"
+// 生成文件名
 std::string generateFileName(const std::string& timestamp) {
+
     return "飞控数据_" + timestamp + ".txt";
 }
 
@@ -25,22 +28,25 @@ void queryData(const std::string& start, const std::string& end) {
         }
     }
 
-    // 遍历所选文件，读取并处理数据
+    if (filesToRead.size() == 0) std::cout << "No files found!" << std::endl;
+
+    // 遍历所选文件，读取数据
     for (const auto& filename : filesToRead) {
         std::ifstream file(filename);
         std::string line;
         while (getline(file, line)) {
             std::cout << line << std::endl;
         }
+        std::cout << std::endl;
         file.close();
     }
 }
 
 int main() {
     std::string startTimestamp, endTimestamp;
-    std::cout << "请输入查询的起始时间戳：";
+    std::cout << "请输入查询的起始时间：";
     std::cin >> startTimestamp;
-    std::cout << "请输入查询的结束时间戳：";
+    std::cout << "请输入查询的结束时间：";
     std::cin >> endTimestamp;
 
     queryData(startTimestamp, endTimestamp);

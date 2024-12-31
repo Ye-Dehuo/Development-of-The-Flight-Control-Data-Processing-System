@@ -76,7 +76,7 @@ while(retryCount < 5 && !isConnected){
     serverAddr.sin_port = htons(serverPort);
     serverAddr.sin_addr.s_addr = inet_addr(serverIp.c_str());
 
-    if(connect(sockfd, (struct sockaddr*) &serverAddr, sizeof(serverAddr) == 0)){
+    if(connect(sockfd, (struct sockaddr*) &serverAddr, sizeof(serverAddr))== 0){
         std::cout << "Server connection succeed!" << std::endl;
         isConnected = true;
     }
@@ -85,7 +85,7 @@ while(retryCount < 5 && !isConnected){
         close(sockfd);
         retryCount++;
         if (retryCount < 5){
-            sleep(3); // 等待 3 秒再尝试重新连接
+            sleep(3); // 等待3秒再尝试重新连接
         }
     }
 }
@@ -94,8 +94,6 @@ if (!isConnected){
     std::cerr << "Error: Server connection failed after 5 retryings! Exiting..." << std::endl;
     return;
 }
-
-sleep(3);
 
 std::vector<FlightData> dataBuffer;
 
@@ -124,8 +122,8 @@ while(true){
         // 清空缓冲区中已发送的数据
         dataBuffer.clear();
             
-        // 每 5 秒发送一次数据
-        sleep(5);
+        // 每5秒发送一批数据
+        sleep(1);
     }
 }
 
