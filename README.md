@@ -6,7 +6,7 @@
 - `struct FlightData` 表示姿态数据结构，存储 `pitch` `roll` `yaw` 与`timestamp` 数据元素 <br>
 ### 3. 函数接口
 - `getDataCount()` 函数用于获取已采集数据量 <br>
-- `getDataAtIndex()` 函数用于获取获取指定索引位置的数据元素内容
+- `getDataAtIndex()` 函数用于获取指定索引位置的数据元素内容
 ## 数据传输网络模块
 ### 1. 数据采集与发送
 - `collectData()` 函数用于进行数据采集，一次采集10组数据，并将数据储存在缓存区 `dataBuffer` 中，通过 `sleep_for(std::chrono::milliseconds())` 模拟100ms时间间隔 <br>
