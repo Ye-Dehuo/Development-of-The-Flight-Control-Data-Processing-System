@@ -16,7 +16,7 @@
 - `getDataAtIndex()` 函数用于获取指定索引位置的数据元素内容
 ## 数据传输网络模块
 ### 1. 数据采集与发送
-- `collectData()` 函数用于进行数据采集，一次采集10组数据，并将数据储存在缓存区 `dataBuffer` 中，通过 `sleep_for(std::chrono::milliseconds())` 模拟100ms时间间隔 <br><br>
+- `collectData()` 函数用于进行数据采集，一次采集 10 组数据，并将数据储存在缓存区 `dataBuffer` 中，通过 `sleep_for(std::chrono::milliseconds())` 模拟 100ms 时间间隔 <br><br>
 - `startClient()` 作为客户端函数，用于连接到服务器并发送数据 <br><br>
 - 利用套接字socket连接机制，并将类型设置为 `SOCK_STREAM` ，使用TCP连接。服务器Ip地址与端口分别设定为 `127.0.0.1` 与 `12345` <br><br>
 - 客户端、服务端源代码分别为 `client.cpp` 与 `server.cpp`
