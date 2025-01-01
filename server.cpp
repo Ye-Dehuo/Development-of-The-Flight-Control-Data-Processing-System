@@ -22,7 +22,7 @@ struct FlightData {
 // 生成文件名
 std::string generateFileName(const unsigned long& timestamp) {
 
-   unsigned long timestamp_s = timestamp / 1000;
+   unsigned long timestamp_s = timestamp / 1000; // 时间戳单位ms转换为s
   
      // 将时间戳转换为time_t，然后转换为tm结构
     std::time_t time = static_cast<time_t>(timestamp_s);
@@ -153,7 +153,7 @@ bool validateData(const std::vector<std::string>& dataStrings, int expectedDataC
     return true;
 }
 
-// 服务器函数：接收客户端发送的数据并校验
+// 服务器函数：接收客户端发送的数据并校验、存储与处理
 void receiveDataFromClient(int newSock) {
     std::vector<std::string> dataStrings;  // 用于存储接收到的单批数据
     char buffer[1024];  // 接收单组数据的临时缓冲区
@@ -168,24 +168,26 @@ void receiveDataFromClient(int newSock) {
         // 接收数据
         int bytesReceived = recv(newSock, buffer, sizeof(buffer), 0);
         if (bytesReceived < 0) {
-            std::cerr << "Error or connection closed by client" << std::endl;
+            std::cerr << "Error or connection closed by client!" << std::endl;
             break;
         }
 
         std::string data(buffer); 
         dataStrings.push_back(data);
 
-        std::cout << "yoho" << std::endl;
-
+        std::cout << dataStrings.size() << " set of data has been received" << std::endl; // 打印本组数据已接收数量
+        if (dataStrings.size() == 10) std::cout << "This batch of data has been received" << std::endl << std::endl;
     }
 
         // 校验数据
         if (validateData(dataStrings, expectedDataCount)) {
-            // 数据校验通过，存储数据到本地内存（这里只是简单打印）
-            std::cout << "Data received and validated. Storing data..." << std::endl;
+            
+        // 数据校验通过，存储数据到本地内存（这里只是简单打印）
+            std::cout << "Data received and validated. Storing data..." << std::endl << std::endl ;
 
             for (const auto& data : dataStrings) {
                 std::cout << "Received data: " << data << std::endl;
+                std::cout << std::endl;
             }
 
         // 数据处理

@@ -95,13 +95,13 @@ if (!isConnected){
     return;
 }
 
-std::vector<FlightData> dataBuffer;
+std::vector<FlightData> dataBuffer; // 存储一批数据（10组）
 
 while(true){
     // 采集数据
-    collectData(dataBuffer, numSamples, interval_ms);
+    collectData(dataBuffer, numSamples, interval_ms); // 一批数据采集完成
 
-    if (dataBuffer.size() > 10){
+    if (dataBuffer.size() >= 10){
         // 获取最新的10组数据
         std::vector<FlightData> dataToSend(dataBuffer.end()-10, dataBuffer.end());
         
@@ -117,13 +117,16 @@ while(true){
                     std::cerr << "Send failed with errno: " << errno << std::endl;
                     break;  // 跳出当前的发送数据循环，重新获取数据发送
                 }
+
+                sleep(1); // 非阻塞模式send()下，给予服务端recv()一些接收时间，否则容易造成接收数据混乱
+
             }
         
         // 清空缓冲区中已发送的数据
         dataBuffer.clear();
             
         // 每5秒发送一批数据
-        sleep(1);
+        sleep(5);
     }
 }
 
