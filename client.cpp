@@ -63,74 +63,75 @@ void startClient(const std::string& serverIp, const int& serverPort, int numSamp
     int retryCount = 0;
     bool isConnected = false;
 
-// 尝试连接服务器，最多重试 5 次
-// 创建套接字
-while(retryCount < 5 && !isConnected){
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) {
-        std::cerr << "Error: Socket creation failed!" << std::endl;
-        return;
-    }
+while(!isConnected){
+    // 尝试连接服务器，最多重试 5 次
+    // 创建套接字
+    while(retryCount < 5 && !isConnected){
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockfd == -1) {
+            std::cerr << "Error: Socket creation failed!" << std::endl;
+            return;
+        }
 
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(serverPort);
-    serverAddr.sin_addr.s_addr = inet_addr(serverIp.c_str());
+        serverAddr.sin_family = AF_INET;
+        serverAddr.sin_port = htons(serverPort);
+        serverAddr.sin_addr.s_addr = inet_addr(serverIp.c_str());
 
-    if(connect(sockfd, (struct sockaddr*) &serverAddr, sizeof(serverAddr))== 0){
-        std::cout << "Server connection succeed!" << std::endl;
-        isConnected = true;
-    }
-    else {
-        std::cerr << "Error: Server connection failed! Retrying..." << std::endl;
-        close(sockfd);
-        retryCount++;
-        if (retryCount < 5){
+        if(connect(sockfd, (struct sockaddr*) &serverAddr, sizeof(serverAddr))== 0){
+            std::cout << "Server connection succeed!" << std::endl;
+            isConnected = true;
+        }
+        else {
+            std::cerr << "Error: Server connection failed! Retrying..." << std::endl;
+            close(sockfd);
+            retryCount++;
             sleep(3); // 等待3秒再尝试重新连接
         }
     }
-}
 
-if (!isConnected){
-    std::cerr << "Error: Server connection failed after 5 retryings! Exiting..." << std::endl;
-    return;
-}
-
-std::vector<FlightData> dataBuffer; // 存储一批数据（10组）
-
-while(true){
-    // 采集数据
-    collectData(dataBuffer, numSamples, interval_ms); // 一批数据采集完成
-
-    if (dataBuffer.size() >= 10){
-        // 获取最新的10组数据
-        std::vector<FlightData> dataToSend(dataBuffer.end()-10, dataBuffer.end());
-        
-        // 将数据发送到服务器
-            for (const auto& data : dataToSend) {
-
-                std::string dataStr = std::to_string(data.pitch) + ","
-                                    + std::to_string(data.roll) + ","
-                                    + std::to_string(data.yaw) + ","
-                                    + std::to_string(data.timestamp);
-
-                if (send(sockfd, dataStr.c_str(), dataStr.length(), MSG_NOSIGNAL) < 0) {
-                    std::cerr << "Send failed with errno: " << errno << std::endl;
-                    break;  // 跳出当前的发送数据循环，重新获取数据发送
-                }
-
-                sleep(1); // 非阻塞模式send()下，给予服务端recv()一些接收时间，否则容易造成接收数据混乱
-
-            }
-        
-        // 清空缓冲区中已发送的数据
-        dataBuffer.clear();
-            
-        // 每5秒发送一批数据
-        sleep(5);
+    if (!isConnected){
+        std::cerr << "Error: Server connection failed after 5 retryings! Exiting..." << std::endl;
+        return;
     }
-}
 
-close(sockfd);   
+    std::vector<FlightData> dataBuffer; // 用于存储一批数据（10组）
+
+    while(isConnected){
+        // 采集数据
+        collectData(dataBuffer, numSamples, interval_ms); // 一批数据采集完成
+
+        if (dataBuffer.size() >= 10){
+            // 获取最新的10组数据
+            std::vector<FlightData> dataToSend(dataBuffer.end()-10, dataBuffer.end());
+            
+            // 将数据发送到服务器
+                for (const auto& data : dataToSend) {
+
+                    std::string dataStr = std::to_string(data.pitch) + ","
+                                        + std::to_string(data.roll) + ","
+                                        + std::to_string(data.yaw) + ","
+                                        + std::to_string(data.timestamp);
+
+                    if (send(sockfd, dataStr.c_str(), dataStr.length(), MSG_NOSIGNAL) < 0) {
+                        std::cerr << "Send failed with errno: " << errno << std::endl;
+                        isConnected = false;
+                        break;  // 跳出当前的发送数据循环，重新获取数据发送
+                    }
+
+                    sleep(1); // 非阻塞模式send()下，给予服务端recv()一些接收时间，否则容易造成接收数据混乱
+
+                }
+            
+            // 清空缓冲区中已发送的数据
+            dataBuffer.clear();
+                
+            // 每5秒发送一批数据
+            if(isConnected) sleep(5);
+        }
+    }
+
+    close(sockfd);   
+}
 }
 
 int main() {

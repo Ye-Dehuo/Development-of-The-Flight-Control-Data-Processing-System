@@ -46,7 +46,7 @@ int main() {
     std::string startTimestamp, endTimestamp;
     std::cout << "请输入查询的起始时间（14位）：";
     std::cin >> startTimestamp;
-    std::cout << "请输入查询的结束时间：（14位）";
+    std::cout << "请输入查询的结束时间（14位）：";
     std::cin >> endTimestamp;
 
     queryData(startTimestamp, endTimestamp);
