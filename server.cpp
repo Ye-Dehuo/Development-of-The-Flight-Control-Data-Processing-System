@@ -11,6 +11,7 @@
 #include <fstream>
 #include <chrono>
 #include <iomanip>
+#include <thread>
 
 struct FlightData {
     float pitch;  // 俯仰角
@@ -154,7 +155,9 @@ bool validateData(const std::vector<std::string>& dataStrings, int expectedDataC
 }
 
 // 服务器函数：接收客户端发送的数据并校验、存储与处理
-void receiveDataFromClient(int newSock) {
+void receiveDataFromClient(int newSock, std::chrono::high_resolution_clock::time_point
+ start, int processCount) {
+
     std::vector<std::string> dataStrings;  // 用于存储接收到的单批数据
     char buffer[1024];  // 接收单组数据的临时缓冲区
 
@@ -190,16 +193,31 @@ void receiveDataFromClient(int newSock) {
                 std::cout << std::endl;
             }
 
-        // 数据处理
-        processData(dataStrings);
-
-            // 清空数据字符串，准备接收下一批数据
-            dataStrings.clear();
         } else {
             // 校验失败，向客户端发送错误信息并要求重新发送
             std::string errorMessage = "Error: Invalid data format or data count mismatch. Please resend data.";
             send(newSock, errorMessage.c_str(), errorMessage.length(), 0);
         }
+
+        // 处理数据
+        // processData(dataStrings);
+        std::vector<std::string> dataStringsForProcess;
+        for (const auto& data : dataStrings){
+            dataStringsForProcess.push_back(data);
+        }
+
+        auto end = std::chrono::high_resolution_clock::now(); // 获取当前时间
+        std::chrono::duration<double> elapsed = end - start; // 计算运行时间
+
+        if (elapsed.count() > 60*processCount){ //每分钟处理一次数据
+            processData(dataStringsForProcess);
+            dataStringsForProcess.clear(); // 清空处理数据字符串，准备处理下一批数据
+            processCount++;
+        }
+
+        // 清空接收数据字符串，准备接收下一批数据
+            dataStrings.clear();
+
     }
 
     close(newSock);
@@ -207,6 +225,10 @@ void receiveDataFromClient(int newSock) {
 
 // 服务器主函数：监听并接受客户端连接
 void startServer(const std::string& serverIp, const int& serverPort) {
+
+    auto start = std::chrono::high_resolution_clock::now();  // 记录程序启动时间
+    int processCount = 1; // 记录数据待处理次数
+
     int serverSock;
     struct sockaddr_in serverAddr;
 
@@ -248,7 +270,7 @@ void startServer(const std::string& serverIp, const int& serverPort) {
         std::cout << "Client connected!" << std::endl;
         
         // 从客户端接收数据
-        receiveDataFromClient(newSock);
+        receiveDataFromClient(newSock, start, processCount);
     }
 
     close(serverSock);
