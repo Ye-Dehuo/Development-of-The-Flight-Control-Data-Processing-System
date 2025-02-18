@@ -1,21 +1,21 @@
 # Development-of-The-Flight-Control-Data-Processing-System
-## 概述
-- 本项目旨在设计并实现一个简单的飞控数据处理系统，包含飞控数据模拟采集、数据传输网络模块搭建以及数据处理、存储与查询等功能<br><br>
-- 项目主要包含文件为 3 个 `.cpp` 源文件与 1 个 `makefile` 文件，其功能分别如下<br><br>
--  `client.cpp` ：作为客户端，负责数据模拟生成、采集与发送，并含有简单的查询类函数接口与重连机制<br><br>
--  `server.cpp` ：作为服务端，通过 TCP/IP 与客户端建立网络连接，可接收客户端发送的数据，并对数据进行相应校验、存储与处理（计算统计值、生成记录文件等）<br><br>
--  `query.cpp` ：作为查询端，通过命令行界面，允许用户通过键入查询条件进行相关文件的检索与内容输出 <br><br>
--  `makefile` ：绑定 GCC 编译器，录入相关编译规则，使项目可在 Linux 环境下通过 `make` 系列命令进行相关操作
-## 数据采集端
-### 1. 数据生成  
-- `generateRandomAngle()` 函数用于生成随机姿态数据，并将姿态角限制在 -180° 至 180°
-### 2. 数据结构
-- `struct FlightData` 表示姿态数据结构，存储 `pitch` `roll` `yaw` 与`timestamp` 数据元素
-### 3. 函数接口
-- `getDataCount()` 函数用于获取已采集数据量 <br><br>
-- `getDataAtIndex()` 函数用于获取指定索引位置的数据元素内容
-## 数据传输网络模块
-### 1. 数据采集与发送
+## Overview
+- This project aims to design and implement a simple flight control data processing system, which includes flight control data simulation and acquisition, data transmission network module setup, as well as data processing, storage, and querying functions<br><br>
+- The project mainly consists of three .cpp source files and one Makefile, with the following functions:<br><br>
+-  `client.cpp` ：As the client, it is responsible for data simulation generation, acquisition, and transmission, and includes simple query functions and a reconnection mechanism<br><br>
+-  `server.cpp` ：As the server, it establishes a network connection with the client via TCP/IP, receives the data sent by the client, and performs corresponding verification, storage, and processing of the data (such as calculating statistical values, generating log files, etc.)<br><br>
+-  `query.cpp` ：As the query terminal, it allows users to input query conditions through the command-line interface to search for relevant files and output their contents <br><br>
+-  `makefile` ：Bind the GCC compiler and input the relevant compilation rules, enabling the project to perform related operations in a Linux environment using the make commands
+## Data acquisition terminal
+### 1. Data generation  
+- The `generateRandomAngle()` function is used to generate random attitude data, with the attitude angles constrained within the range of -180° to 180°
+### 2. Data structure
+- The `struct FlightData` represents the attitude data structure, storing the data elements `pitch`, `roll`, `yaw`, and `timestamp`
+### 3. Function interface
+- The `getDataCount()` function is used to retrieve the amount of data that has been collected <br><br>
+- The `getDataAtIndex()` function is used to retrieve the data element content at a specified index position
+## Data transmission network module
+### 1. Data acquisition and transmission
 - `collectData()` 函数用于进行数据采集，一次采集 10 组数据，并将数据储存在缓存区 `dataBuffer` 中，通过 `sleep_for(std::chrono::milliseconds())` 模拟 100ms 时间间隔 <br><br>
 - `startClient()` 作为客户端函数，用于连接到服务器并发送数据 <br><br>
 - 利用套接字socket连接机制，并将类型设置为 `SOCK_STREAM` ，使用TCP连接。服务器Ip地址与端口分别设定为 `127.0.0.1` 与 `12345` <br><br>
