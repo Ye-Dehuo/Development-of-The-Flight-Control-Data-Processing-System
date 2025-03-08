@@ -28,7 +28,7 @@
 - After initializing the socket, the `bind()` function is used to bind the socket, followed by the `listen()` function to start listening for incoming connections. The server waits for a client connection using `accept()`. If the client disconnects, the server will continue waiting at `accept()` until the client successfully reconnects or a new client connects <br><br>
 - The `receiveDataFromClient()` function receives data from the client using `recv()` and stores the data in the buffer `dataStrings` <br><br>
 - The `validateData()` function is used to validate the received data. It checks if the amount of received data meets the standard using `expectedDataCount`, verifies if the attitude angle data is a floating-point number using `stof()`, and checks if the timestamp is a long integer using `stol()`. If the validation fails, an error message is sent to the client, requesting that the data be resent <br><br>
-- After the data validation passes, the data is stored in local memory (in this case, simply printed)
+- After the data validation passes, the data will be stored in local memory (in this case, just simply printed them)
 ## Data processing, file storage, and querying
 ### 1. Data processing and file storage
 - Using `std::chrono` to record the system's running time ensures that data is processed once every minute for the received data
