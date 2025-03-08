@@ -17,7 +17,7 @@
 ## Data transmission network module
 ### 1. Data acquisition and transmission
 - The `collectData()` function is used for data acquisition, collecting 10 sets of data at a time, and storing the data in the buffer `dataBuffer`. It simulates a 100ms time interval using `sleep_for(std::chrono::milliseconds())` <br><br>
-- The `startClient()` function, as the client function, is used to connect to the server and send dat <br><br>
+- The `startClient()` function, as the client function, is used to connect to the server and send data <br><br>
 - Using the `socket` connection mechanism, the socket type is set to `SOCK_STREAM` to establish a TCP connection. The server's IP address and port are set to `127.0.0.1` and `12345`, respectively <br><br>
 - The source code for the client and server are named `client.cpp` and `server.cpp`, respectively
 ### 2. Data transmission and reconnection mechanism
@@ -31,7 +31,7 @@
 - After the data validation passes, the data will be stored in local memory (in this case, just simply printed them)
 ## Data processing, file storage, and querying
 ### 1. Data processing and file storage
-- Using `std::chrono` to record the system's running time ensures that data is processed once every minute for the received data <br><br>
+- Using `std::chrono` to record the system's running time ensures that received data will be processed once every minute <br><br>
 - The `processData()` function is used to process the validated data. It converts the data into floating-point numbers using the `convertData()` function, generates a filename with the date (derived from the timestamp) using the `generateFileName()` function, and calculates the maximum value, minimum value, and average value of the data using `max()`, `min()`, and `size()`. It then creates, writes, and closes the log file using file-related commands
 ### 2. Data querying
 - The source code for the query terminal is `query.cpp`, which uses `cin` to record the user's input for the start and end times of the file query <br><br>
