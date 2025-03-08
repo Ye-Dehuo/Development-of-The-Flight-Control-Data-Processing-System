@@ -31,7 +31,7 @@
 - After the data validation passes, the data will be stored in local memory (in this case, just simply printed them)
 ## Data processing, file storage, and querying
 ### 1. Data processing and file storage
-- Using `std::chrono` to record the system's running time ensures that data is processed once every minute for the received data<br>
+- Using `std::chrono` to record the system's running time ensures that data is processed once every minute for the received data <br><br>
 - The `processData()` function is used to process the validated data. It converts the data into floating-point numbers using the `convertData()` function, generates a filename with the date (derived from the timestamp) using the `generateFileName()` function, and calculates the maximum value, minimum value, and average value of the data using `max()`, `min()`, and `size()`. It then creates, writes, and closes the log file using file-related commands
 ### 2. Data querying
 - The source code for the query terminal is `query.cpp`, which uses `cin` to record the user's input for the start and end times of the file query <br><br>
