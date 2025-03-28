@@ -38,7 +38,7 @@
 - The `queryData()` function is used to read data for a specified time range. It generates the filenames for the start and end times using the `generateFileName()` function. Then, using `std::filesystem::directory_iterator`, it iterates through all the files in the directory, selecting the files within the specified time range, and stores the filenames that meet the conditions in `filesToRead`. After that, it reads the file data using `getline()` and outputs the content <br><br>
 - By starting the query terminal, the user can input a 14-digit "start time" and "end time" for the query. The system will then find the files within the specified time range and output the relevant data from those files to the terminal
 ## Git and GCC
-- Write a `Makefile` to define the compilation rules and files, allowing compilation of related files using the `make` command. The `make clean` command is used to clean up intermediate files and target files generated during compilation
+- Write a `Makefile` to define the compilation rules and files, allowing compilation of related files using the `make` command. The `make clean` command can be used to clean up intermediate files and target files generated during compilation
 
 
 
